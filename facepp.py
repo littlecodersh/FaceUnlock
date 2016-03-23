@@ -1,19 +1,25 @@
 import requests, os, mimetypes, json, time
 
-BASE_URL = 'http://apicn.faceplusplus.com/v2'
-API_KEY = ''
-API_SECRET = ''
+with open('facepp.json') as f: configInfo = json.loads(f.read())
+BASE_URL = configInfo['base_url']
+API_KEY = configInfo['api_key']
+API_SECRET = configInfo['api_secret']
 BASE_PARAMS = {
     'api_key': API_KEY,
     'api_secret': API_SECRET, }
 
-def upload_img(fileDir):
-    url = '%s/detection/detect?api_key=%s&api_secret=%s&mode=oneface&attribute=none'%(
-            BASE_URL, API_KEY, API_SECRET)
-    files = {'img': (os.path.basename(fileDir), open(fileDir, 'rb'),
-            mimetypes.guess_type(fileDir)[0]), }
-    r = requests.post(url, files = files)
-    return json.loads(r.text)['face'][0]['face_id']
+def upload_img(fileDirList, oneface = True):
+    if not isinstance(fileDirList, list): fileDirList = [fileDirList]
+    faceList = []
+    for fileDir in fileDirList:
+        url = '%s/detection/detect?api_key=%s&api_secret=%s&attribute=none'%(
+                BASE_URL, API_KEY, API_SECRET)
+        if oneface: url += '&mode=oneface'
+        files = {'img': (os.path.basename(fileDir), open(fileDir, 'rb'),
+                mimetypes.guess_type(fileDir)[0]), }
+        r = requests.post(url, files = files)
+        for face in json.loads(r.text)['face']: faceList.append(face['face_id'])
+    return faceList
 
 def create_person(personName = None, faceId = []):
     url = '%s/person/create'%BASE_URL
@@ -45,7 +51,7 @@ def begin_train_verify(personId = None, personName = None):
     else:
         params['person_name'] = personName
     r = requests.get(url, params = params)
-    return r['session_id']
+    return json.loads(r.text)['session_id']
 
 def get_session(sessionId):
     url = '%s/info/get_session'%BASE_URL
@@ -59,7 +65,7 @@ def verify(personId, faceId):
     params = BASE_PARAMS
     params['face_id'] = faceId
     params['person_id'] = personId
-    r = request.get(url, params)
+    r = requests.get(url, params)
     return r.text
 
 def compare(faceId1, faceId2):
@@ -72,18 +78,21 @@ def compare(faceId1, faceId2):
 
 def LittleCoder():
     name = 'LittleCoder'
-    fileDir = 'pic.jpg'
+    fileDirList = ['pic1.jpg', 'pic2.jpg']
     personId = get_person_id(name)
     if personId is None:
-        faceId = upload_img(fileDir)
-        personId = create_person('Geoff', faceId)
-    trainSession = begin_train_verify(personId)
-    print trainSession
-    try:
-        while 1:
-            print get_session(trainSession)
-            time.sleep(3)
-    except:
-        pass
+        faceIdList = upload_img(fileDirList)
+        personId = create_person(name, faceIdList)
+        trainSession = begin_train_verify(personId)
+        print trainSession
+        try:
+            while 1:
+                print get_session(trainSession)
+                time.sleep(3)
+        except:
+            pass
+    faceToVerifyId = upload_img('pic2.jpg')[0]
+    print verify(personId, faceToVerifyId)
 
-compare(upload_img('pic1.jpg'), upload_img('pic2.jpg'))
+LittleCoder()
+# compare(upload_img('pic1.jpg'), upload_img('pic2.jpg'))
