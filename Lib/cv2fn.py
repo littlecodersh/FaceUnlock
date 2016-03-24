@@ -1,6 +1,6 @@
 import cv2, os
 
-faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+faceCascade = cv2.CascadeClassifier(os.path.join('Lib', 'haarcascade_frontalface_default.xml'))
 
 def take_picture(num, storageDir = 'picture'):
     if not os.path.exists(storageDir): os.mkdir(storageDir)
@@ -17,7 +17,7 @@ def take_picture(num, storageDir = 'picture'):
         elif key == ord(' '):
             cv2.imshow('Capture Image', img)
             if num < picNum: break
-            faces = detect_face(img):
+            faces = detect_face(img)
             if len(faces) == 1:
                 cv2.imwrite(os.path.join(storageDir, 'pic%s.jpg'%picNum), img)
                 picNum += 1
@@ -27,6 +27,7 @@ def take_picture(num, storageDir = 'picture'):
                 print('More than one face found')
     cap.release()
     cv2.destroyAllWindows()
+    return [os.path.join(storageDir, 'pic%s.jpg'%i) for i in range(1, num + 1)]
 
 def detect_face(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

@@ -1,6 +1,6 @@
 import requests, os, mimetypes, json, time
 
-with open('facepp.json') as f: configInfo = json.loads(f.read())
+with open(os.path.join('Lib', 'facepp.json')) as f: configInfo = json.loads(f.read())
 BASE_URL = configInfo['base_url']
 API_KEY = configInfo['api_key']
 API_SECRET = configInfo['api_secret']
@@ -31,6 +31,14 @@ def create_person(personName = None, faceId = []):
     r = requests.get(url, params = params)
     print r.text
     return json.loads(r.text)['person_id']
+
+def delete_person(personName):
+    url = '%s/person/delete'%BASE_URL
+    params = {
+        'api_key': API_KEY,
+        'api_secret': API_SECRET,
+        'person_name': personName}
+    r = requests.get(url, params = params)
 
 def get_person_list():
     url = '%s/info/get_person_list'%BASE_URL
@@ -66,7 +74,7 @@ def verify(personId, faceId):
     params['face_id'] = faceId
     params['person_id'] = personId
     r = requests.get(url, params)
-    return r.text
+    return json.loads(r.text)
 
 def compare(faceId1, faceId2):
     url = '%s/recognition/compare'%BASE_URL
@@ -76,23 +84,4 @@ def compare(faceId1, faceId2):
     r = requests.get(url, params)
     print r.text
 
-def LittleCoder():
-    name = 'LittleCoder'
-    fileDirList = ['pic1.jpg', 'pic2.jpg']
-    personId = get_person_id(name)
-    if personId is None:
-        faceIdList = upload_img(fileDirList)
-        personId = create_person(name, faceIdList)
-        trainSession = begin_train_verify(personId)
-        print trainSession
-        try:
-            while 1:
-                print get_session(trainSession)
-                time.sleep(3)
-        except:
-            pass
-    faceToVerifyId = upload_img('pic2.jpg')[0]
-    print verify(personId, faceToVerifyId)
-
-LittleCoder()
 # compare(upload_img('pic1.jpg'), upload_img('pic2.jpg'))
