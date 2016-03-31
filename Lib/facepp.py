@@ -29,7 +29,6 @@ def create_person(personName = None, faceId = []):
     if not personName is None: params['person_name'] = personName
     if faceId and isinstance(faceId, list): params['face_id'] = ','.join(faceId)
     r = requests.get(url, params = params)
-    print r.text
     return json.loads(r.text)['person_id']
 
 def delete_person(personName):
@@ -74,7 +73,7 @@ def verify(personId, faceId):
     params['face_id'] = faceId
     params['person_id'] = personId
     r = requests.get(url, params)
-    return json.loads(r.text)
+    return r.json()
 
 def compare(faceId1, faceId2):
     url = '%s/recognition/compare'%BASE_URL
@@ -82,6 +81,6 @@ def compare(faceId1, faceId2):
     params['face_id1'] = faceId1
     params['face_id2'] = faceId2
     r = requests.get(url, params)
-    print r.text
+    return r.json()
 
 # compare(upload_img('pic1.jpg'), upload_img('pic2.jpg'))

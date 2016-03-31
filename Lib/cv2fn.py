@@ -8,6 +8,7 @@ def take_picture(num, storageDir = 'picture'):
     picNum = 1
     if not cap.isOpened(): print('Cap failed because of camera')
 
+    print('Press **SPACE** to capture a picture')
     while 1:
         ret, img = cap.read()
         cv2.imshow('Image',img)
@@ -16,7 +17,6 @@ def take_picture(num, storageDir = 'picture'):
             break
         elif key == ord(' '):
             cv2.imshow('Capture Image', img)
-            if num < picNum: break
             faces = detect_face(img)
             if len(faces) == 1:
                 cv2.imwrite(os.path.join(storageDir, 'pic%s.jpg'%picNum), img)
@@ -25,6 +25,7 @@ def take_picture(num, storageDir = 'picture'):
                 print('No face found')
             else:
                 print('More than one face found')
+            if picNum >= num: break
     cap.release()
     cv2.destroyAllWindows()
     return [os.path.join(storageDir, 'pic%s.jpg'%i) for i in range(1, num + 1)]
