@@ -25,7 +25,7 @@ def take_picture(num, storageDir = 'picture'):
                 print('No face found')
             else:
                 print('More than one face found')
-            if picNum >= num: break
+            if picNum > num: break
     cap.release()
     cv2.destroyAllWindows()
     return [os.path.join(storageDir, 'pic%s.jpg'%i) for i in range(1, num + 1)]
