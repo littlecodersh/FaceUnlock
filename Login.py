@@ -36,11 +36,11 @@ def login_as(name, timeout = 20):
             picDir = os.path.join('tmp', 'pic.jpg')
             cv2.imwrite(picDir, img)
             pictureId = upload_img(picDir)
-        if len(pictureId) > 0:
-            while 1:
-                result = verify(personId, pictureId)
-                if not result.get('is_same_person') is None: break
-            if result['is_same_person'] and result['confidence'] > 50: success = True;break
+            if len(pictureId) > 0:
+                while 1:
+                    result = verify(personId, pictureId)
+                    if not result.get('is_same_person') is None: break
+                if result['is_same_person'] and result['confidence'] > 50: success = True;break
         if endCaptureTime < time.time(): break
     capInput.release()
     return success

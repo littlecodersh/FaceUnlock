@@ -84,3 +84,7 @@ def compare(faceId1, faceId2):
     return r.json()
 
 # compare(upload_img('pic1.jpg'), upload_img('pic2.jpg'))
+try:
+    get_person_list()
+except:
+    raise Exception('Please make sure facepp.json in Lib/ is right.')
